@@ -9,5 +9,6 @@ verify_ssl = true
 requests = "*"
 python-decouple = "*"
 
+
 [requires]
 python_version = "3.7"
