@@ -9,7 +9,7 @@ while dir in exits:
 
     data = move(payload)
 
-    print('data inside the loop', data)
+    # print('data inside the while loop', data)
 
     if not data:
         print('no data available peaaace')
@@ -19,11 +19,28 @@ while dir in exits:
         print('errors', data['errors'])
         break
 
-    if data['room_id'] == 0:
+    items = data['items']
+
+    room_obj = {
+        "room_id": data['room_id'],
+        "title": data['title'],
+        "items": data['items'],
+        "exits": data['exits'],
+        "cooldown": data['cooldown'],
+        "errors": data['errors'],
+        'messages': data['messages'],
+    }
+
+    print(room_obj)
+
+    if data['room_id'] == 349:
         break
 
-    items = data['items']
-    print(data['exits'])
+    if "ishing" in room_obj["title"]:
+        print('i think we found the wishing well?')
+        print(room_obj["title"])
+        print(room_obj["room_id"])
+        break
 
     if len(items) > 0:
         print('we found a items!!!!')
@@ -31,6 +48,7 @@ while dir in exits:
         time.sleep(16)
         for item in items:
             data = get_item({"name": f"{item}"})
-            print('data for items', data)
+            print('message: ', data['messages'])
 
-    time.sleep(16)
+    print('begin cooldown time: ', room_obj['cooldown'])
+    time.sleep(room_obj['cooldown'])

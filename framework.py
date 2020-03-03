@@ -28,7 +28,7 @@ def move(payload):
     r_move = requests.post(
         f'{url}/adv/move/', data=json.dumps(payload), headers=headers)
     data = r_move.json()
-    print('data inside the move', data)
+    # print('data inside the move', data)
     if len(data['errors']) > 0:
         print('move error', data)
         return False
