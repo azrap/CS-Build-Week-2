@@ -33,7 +33,8 @@ while dir in exits:
 
     print(room_obj)
 
-    if data['room_id'] == 349:
+    if data['room_id'] == 467:
+        print('i think we found the pirates cove to change name?!!!!')
         break
 
     if "ishing" in room_obj["title"]:
