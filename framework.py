@@ -3,7 +3,7 @@ import requests
 import json
 
 
-Token = "your token here"
+Token = "a7af7d4d70b5e0f6d5032a265a84d496ac3b3d30"
 
 url = "https://lambda-treasure-hunt.herokuapp.com/api"
 

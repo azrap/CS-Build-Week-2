@@ -6,8 +6,8 @@ from framework import *
 
 
 url = 'https://lambda-treasure-hunt.herokuapp.com/api/adv'
-# TOKEN = config('token')
-TOKEN = 'a7af7d4d70b5e0f6d5032a265a84d496ac3b3d30'
+TOKEN = config('token')
+
 headers = {'Authorization': 'Token ' + TOKEN}
 
 # Reverse directions
