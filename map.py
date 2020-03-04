@@ -1,7 +1,7 @@
 import json
 import requests
 from time import sleep
-# from decouple import config
+from decouple import config
 from framework import *
 
 

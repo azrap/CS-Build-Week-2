@@ -1,7 +1,8 @@
 from framework import *
+import subprocess
 
 
-dir = "n"
+dir = "e"
 payload = {"direction": dir}
 exits = [dir]
 
@@ -18,7 +19,7 @@ while dir in exits:
 
     if len(data['errors']) > 0:
         print('errors', data['errors'])
-        print('\a')
+
         break
 
     items = data['items']
@@ -37,10 +38,10 @@ while dir in exits:
 
     if data['room_id'] == 467:
         print('i think we found the pirates cove to change name?!!!!')
-        print('\a')
+
         break
 
-    if data['room_id'] == 20:
+    if data['room_id'] == 0:
         break
 
         #     break
@@ -49,7 +50,6 @@ while dir in exits:
         print('i think we found the wishing well?')
         print(room_obj["title"])
         print(room_obj["room_id"])
-        print('\a')
         break
 
     # if len(items) > 0:
@@ -63,4 +63,4 @@ while dir in exits:
     print('begin cooldown time: ', room_obj['cooldown'])
     time.sleep(room_obj['cooldown'])
 
-print('\a')
+subprocess.call(["afplay", "startagain.wav"])
