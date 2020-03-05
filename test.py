@@ -36,12 +36,12 @@ while dir in exits:
 
     print(room_obj)
 
-    if data['room_id'] == 467:
-        print('i think we found the pirates cove to change name?!!!!')
+    if data['room_id'] == 479:
+        print('we found the mining room!!!!')
 
         break
 
-    if data['room_id'] == 0:
+    if data['room_id'] == 32:
         break
 
         #     break
