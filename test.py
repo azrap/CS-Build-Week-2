@@ -1,13 +1,15 @@
 from framework import *
+import subprocess
 
 
-dir = "s"
+dir = "e"
 payload = {"direction": dir}
 exits = [dir]
 
 while dir in exits:
 
     data = move(payload)
+    print('\nwe are moving in this direction: ', exits, '\n')
 
     # print('data inside the while loop', data)
 
@@ -17,6 +19,7 @@ while dir in exits:
 
     if len(data['errors']) > 0:
         print('errors', data['errors'])
+
         break
 
     items = data['items']
@@ -33,8 +36,15 @@ while dir in exits:
 
     print(room_obj)
 
-    if data['room_id'] == 349:
+    if data['room_id'] == 479:
+        print('we found the mining room!!!!')
+
         break
+
+    if data['room_id'] == 32:
+        break
+
+        #     break
 
     if "ishing" in room_obj["title"]:
         print('i think we found the wishing well?')
@@ -42,13 +52,15 @@ while dir in exits:
         print(room_obj["room_id"])
         break
 
-    if len(items) > 0:
-        print('we found a items!!!!')
-        print('items', items)
-        time.sleep(16)
-        for item in items:
-            data = get_item({"name": f"{item}"})
-            print('message: ', data['messages'])
+    # if len(items) > 0:
+    #     print('we found a items!!!!')
+    #     print('items', items)
+    #     time.sleep(16)
+    #     for item in items:
+    #         data = get_item({"name": f"{item}"})
+    #         print('message: ', data['messages'])
 
     print('begin cooldown time: ', room_obj['cooldown'])
     time.sleep(room_obj['cooldown'])
+
+subprocess.call(["afplay", "startagain.wav"])

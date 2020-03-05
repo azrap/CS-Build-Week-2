@@ -1,49 +1,152 @@
-{"room_id": 0,
- "title": "A brightly lit room",
- "description": "You are standing in the center of a brightly lit room. You notice a shop to the west and exits to the north, south and east.",
- "coordinates": "(60,60)",
- "elevation": 0, "terrain":
- "NORMAL",
- "players": ["User 20673", "User 20734", "User 20728", "User 20726", "User 20644", "User 20729", "User 20645", "User 20716", "User 20699", "User 20731", "User 20701", "User 20732", "User 20730", "User 20725", "User 20723", "User 20722", "User 20721", "User 20720", "User 20719", "User 20718", "User 20717", "User 20711", "User 20710", "User 20708", "User 20707",
-                                                                                                                                                                                                                                                           "User 20706", "User 20705", "User 20704", "User 20703", "User 20702", "User 20700", "User 20697", "User 20696", "User 20694", "User 20692", "User 20691", "User 20690", "User 20688", "User 20687", "User 20686", "User 20682", "User 20680", "User 20676", "User 20675", "User 20674", "User 20672", "User 20671", "User 20669", "User 20666", "User 20665", "User 20664", "User 20663", "User 20662", "User 20657", "User 20655", "User 20654", "User 20652", "User 20651", "User 20650", "User 20646", "User 20642", "User 20641"],
- "items": [],
- "exits": ["n", "s", "e", "w"],
- "cooldown": 1.0,
- "errors": [],
- "messages": []}
 
-{"room_id": 8,
- "title": "A misty room",
- "description": "You are standing on grass and surrounded by a dense mist. You can barely make out the exits in any direction.",
- "coordinates": "(59,59)",
- "elevation": 0,
- "terrain": "NORMAL",
- "players": [],
- "items": [],
- "exits": ["s", "w"],
- "cooldown": 15.0,
- "errors": [],
- "messages": ["You have walked north."]}
+import json
+import requests
+from time import sleep
+from decouple import config
+from framework import *
 
-{
-    "room_id": 16,
-    "title": "A misty room",
-    "description": "You are standing on grass and surrounded by a dense mist. You can barely make out the exits in any direction.",
-    "coordinates": "(58,59)",
-    "elevation": 0,
-    "terrain": "NORMAL",
-    "players": [],
-    "items": [],
-    "exits": [
-        "n",
-        "e",
-        "w"
-    ],
-    "cooldown": 15,
-    "errors": [],
-    "messages": [
-        "You have walked west."
-    ]
+
+url = 'https://lambda-treasure-hunt.herokuapp.com/api/adv'
+TOKEN = config('token')
+
+headers = {'Authorization': 'Token ' + TOKEN}
+
+# Reverse directions
+reverse_dir = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
+
+# Keep track of reverse path for backtracking
+reverse_path = []
+
+# Collect room data
+rooms = {}
+
+# Dictionary to iterate through exits
+exits = {}
+
+# Keep track of graph
+graph = {}
+
+# Movement payload for post request
+payload = {
+    'n': {"direction": "n"},
+    's': {"direction": "s"},
+    'e': {"direction": "e"},
+    'w': {"direction": "w"}
 }
 
+# While rooms visited is less than total rooms...
+while len(rooms) < 500-1:
+    # Keep track of previous room
+    prev_room = None
+    # Inspect current room
+    r = requests.get(url=url + '/init', headers=headers)
+    sleep(5)
+    room_data = r.json()
+    print('new room:', room_data)
+    current_room = room_data['room_id']
+    print('current_room:', current_room)
+    items = room_data['items']
 
+    # do an invetory check - BEGIN AZRA CODE
+    r = requests.post(url=url + '/status', headers=headers)
+    status_data = r.json()
+    sleep(5)
+
+    inventory = status_data['inventory']
+
+    if len(inventory) < 10:
+        print(f'you have {len(inventory)} items in your posession\n')
+        if len(items) > 0:
+            print('we found these items!!!!\n')
+            print('items', items)
+            time.sleep(17)
+        for item in items:
+            data = get_item({"name": f"{item}"})
+            print('message: ', data['messages'])
+            time.sleep(1)
+    else:
+        print('you aready have 10 items! go exchange it at the shop')
+
+    # END AZRA CODE
+
+        # check your status
+
+        # If room hasn't been visited...
+    if current_room not in rooms:
+        rooms[current_room] = {
+            'title': room_data['title'],
+            'description': room_data['description'],
+            'coordinates': room_data['coordinates'],
+            'exits': room_data['exits'],
+            'cooldown': room_data['cooldown'],
+            'errors': room_data['errors'],
+            'messages': room_data['messages']
+        }
+
+        # Add exits for current room to rooms
+        exits[current_room] = room_data['exits']
+        print('List of exits for the room', exits[current_room])
+        # Grab last direction traveled
+        if prev_room is not None:
+            print('prev_room:', prev_room)
+            last_dir = reverse_path[-1]
+            # Remove last exit from exits
+            exits[current_room].remove(last_dir)
+            print('Exits after removing last direction:', exits[current_room])
+            # Initialize graph room
+            graph[current_room] = {'n': '?', 's': '?', 'e': '?', 'w': '?'}
+            # Update graph for previous room
+            if graph[prev_room][last_dir] == '?':
+                graph[prev_room][last_dir] = current_room
+                graph[current_room][reverse_dir[last_dir]] = prev_room
+                print('Graph:', graph)
+
+        # While there's no more rooms to explore...
+        while len(exits[current_room]) < 1:
+            # Pop last direction in reverse_path
+            reverse = reverse_path.pop()
+            # Move in reverse direction
+            requests.post(url + "/move", headers=headers,
+                          data=payload[reverse])
+            print('backtracking...')
+
+    # Travel in first available exit direction in room
+
+    exit_dir = exits[current_room].pop(0)
+    print('exit:', exit_dir)
+    # Add reverse direction to reverse path
+    reverse_path.append(reverse_dir[exit_dir])
+    print('Reverse Path:', reverse_path)
+    # Update previous room
+    prev_room = current_room
+    # Travel
+    data = json.dumps(payload[exit_dir])
+    print('Print json.dumps:', json.dumps(payload[exit_dir]))
+    # p = requests.post(url + '/move/', headers=headers,
+    #                   json={"direction": "n"})
+    try:
+        p = requests.post(url + '/move', headers=headers,
+                          data=data)
+        print('Post request:', p.json())
+    except requests.exceptions.RequestException as e:
+        print(e)
+    print('Traveling...')
+    cooldown = p.json()['cooldown']
+    sleep(cooldown + 2)
+    # Wait for cooldown
+    # if cooldown < 15:
+    #     sleep(cooldown + 15)
+    #     print('Waiting...')
+    # else:
+    #     sleep(cooldown)
+    #     print('Waiting...')
+
+# Save graph to text file
+with open('graph.txt', 'w') as f:
+    f.write(graph)
+    print('written to graph \n')
+
+# Save rooms to text file
+with open('rooms.txt', 'w') as f:
+    f.write(rooms)
+    print('written to room \n')
